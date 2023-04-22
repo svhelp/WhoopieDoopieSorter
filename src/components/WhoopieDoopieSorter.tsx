@@ -18,6 +18,9 @@ ChartJS.register(
 
 export const options = {
   responsive: true,
+  animation: {
+      duration: 0
+  },
   plugins: {
     title: {
       display: true,
@@ -25,6 +28,8 @@ export const options = {
     },
   },
 };
+
+const defaultTimeout = 10;
 
 export const WhoopieDoopieSorter = () => {
     const [ range, setRange ] = useState(100);
@@ -40,13 +45,45 @@ export const WhoopieDoopieSorter = () => {
         ],
       };
 
+    const reset = () => {
+      setData(createDataset(range));
+    }
+
+    const bubbleSortOpt = () => {
+      let lastTimeout = 0;
+
+      for (let i = 0; i < data.length; i++) {
+        const lengthLeft = data.length - i - 1;
+
+        for (let k = 0; k < lengthLeft; k++) {
+          lastTimeout += defaultTimeout;
+
+          setTimeout(() => 
+            setData(initial => {
+              if (initial[k] <= initial[k+1]) {
+                return initial;
+              }
+
+              const array = [ ...initial ];
+              array[k] = initial[k+1];
+              array[k+1] = initial[k];
+
+              return array;
+            }), lastTimeout);
+        }
+      }
+    }
+
     return (
         <div>
             <input type="number" value={range} onChange={e => setRange(e.target.value as unknown as number)}/>
             <Bar options={options} data={chartData} />
+            <button onClick={bubbleSortOpt}>Bubble sort</button>
+            <button onClick={reset}>Reset</button>
         </div>
     )
 }
+
 
 const ficherYatesShuffle = (array: number[]) => {
     let currentIndex = array.length,  randomIndex;
